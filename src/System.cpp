@@ -148,7 +148,7 @@ void System::mergePList(std::vector<person> *parentList, std::vector<person> new
     neighbourList::updateLists(&personList, &bManager); //update the neighbour lists to make the program ready for use
 }
 
-void System::calculateForcesTorques(int i){ //calculate the force and torques acting on particle i here
+/* void System::calculateForcesTorques(int i){ //calculate the force and torques acting on particle i here
     //get p_i for readability here
     person *p_i = &personList[i];
 
@@ -185,7 +185,7 @@ void System::calculateForcesTorques(int i){ //calculate the force and torques ac
     if(sysParam.enableVelocityAlignmentTorque) { p_i->addTorque(tManager.computeVelocityAlignmentTorque(p_i)); }
     if(sysParam.enableAngularFrictionTorque) { p_i->addTorque(tManager.computeAngularFrictionTorque(p_i)); }
     if(sysParam.enableRandNoisyTorque) { p_i->setNoisyTorque(tManager.randNoisyTorque(&randGen, sysParam.sigmaTorque)); }
-}
+} */
 
 void System::generateDebugParticles(){
     //This subroutine is used to hardcode particles to debug the code
