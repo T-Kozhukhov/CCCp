@@ -23,9 +23,6 @@ System::System(physParam param)
 
     //setup of output manager
     vtpDumper = output(sysParam.outFileName, sysParam.outDirPath, sysParam.outFileType, &personList);
-
-    //preparing thManager
-    thManager = new threadManager(&personList, &sysParam);
 }
 
 System::~System()
@@ -46,6 +43,10 @@ void System::runSimulation(){
     csv::exportPList(personList, sysParam.pathToLoadingCSV+"initPartData.csv", sysParam.meanR); //exports the IC data for potential later usage
 
     std::cout<< "Executing simulation\n";
+	
+	//preparing thManager
+    thManager = new threadManager(&personList, &sysParam);
+	
     simulationBegun = true; //set the simulation as begun to catch errors
 
     for(int t = 0; t<sysParam.stepMax; t++){ // perform appropriate number of steps

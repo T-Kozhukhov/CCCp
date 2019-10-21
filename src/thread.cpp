@@ -1,4 +1,5 @@
 #include "thread.h"
+#include <iostream>
 
 thread::thread(){
 	//dummy ctor
@@ -25,6 +26,8 @@ thread::thread(std::vector<person>* pList, int Start, int Last, physParam SysPar
         sysParam.v_0, sysParam.kHarmonic, sysParam.kHertzian);
     tManager = new planarTorque(sysParam.xiAngular, sysParam.xiPair, sysParam.zetaPolar,
         sysParam.zetaVelocity);
+	
+	std::cout << "One thread's partitions are: " << start << " to " << last << "\n";	
 }
 
 thread::~thread(){
@@ -51,6 +54,8 @@ void thread::doUpdateWorkload(){
 void thread::calculateForcesTorques(int i){
 	//get p_i for readability here
     person *p_i = personList.at(i);
+
+	std::cout <<"tried getting a force\n";
 
     if(!p_i->getGlued()){
         //obtain the neighbourlist for this particle
@@ -86,6 +91,8 @@ void thread::calculateForcesTorques(int i){
         if(sysParam.enableVelocityAlignmentTorque) { p_i->addTorque(tManager->computeVelocityAlignmentTorque(p_i)); }
         if(sysParam.enableAngularFrictionTorque) { p_i->addTorque(tManager->computeAngularFrictionTorque(p_i)); }
         if(sysParam.enableRandNoisyTorque) { p_i->setNoisyTorque(tManager->randNoisyTorque(randGen, sysParam.sigmaTorque)); }
+		
+		std::cout << "part " << i << " force x: " << p_i->getForce().getX() << '\n';
     }
 }
 
