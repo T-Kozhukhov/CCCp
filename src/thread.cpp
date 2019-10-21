@@ -10,7 +10,7 @@ thread::thread(std::vector<person>* pList, int Start, int Last, physParam SysPar
 	last = Last;
 	
 	//setup person list
-	for(int i = 0; i < pList.size(); i++){ //loop through list and make a pointer to each individual person
+	for(int i = 0; i < pList->size(); i++){ //loop through list and make a pointer to each individual person
 		personList.push_back(&pList->at(i));
 	}
 	
@@ -32,22 +32,22 @@ thread::~thread(){
 	delete bManager;
 	delete fManager;
 	delete tManager;
-	delete RNG;
+	delete randGen;
 }
 
-void doCalculateWorkload(){
+void thread::doCalculateWorkload(){
 	for(int i = start; i < last; i++){
 		calculateForcesTorques(i); //calculate the forces and torques on person i
 	}
 }
 
-void doUpdateWorkload(){
+void thread::doUpdateWorkload(){
 	for(int i = start; i < last; i++){
 		update(i); //calculate the forces and torques on person i
 	}
 }
 
-void calculateForcesTorques(int i){
+void thread::calculateForcesTorques(int i){
 	//get p_i for readability here
     person *p_i = personList.at(i);
 
@@ -88,7 +88,7 @@ void calculateForcesTorques(int i){
     }
 }
 
-void update(int i){
+void thread::update(int i){
 	if(!personList.at(i)->getGlued()) {
         personList.at(i)->update(sysParam.stepSize, bManager); //if not glued, update each particle
     }

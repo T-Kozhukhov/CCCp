@@ -25,7 +25,7 @@ System::System(physParam param)
     vtpDumper = output(sysParam.outFileName, sysParam.outDirPath, sysParam.outFileType, &personList);
 
     //preparing thManager
-    thManager = new threadManager(&personList, &sysParam, &bManager, &fManager, &tManager, &randGen);
+    thManager = new threadManager(&personList, &sysParam);
 }
 
 System::~System()
