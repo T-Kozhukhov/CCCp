@@ -1,0 +1,16 @@
+#!/bin/bash
+#Run a test case to make sure the built program runs
+#Copy the contents of the TESTCASE to the build directory and run this script
+
+SECONDS=0
+
+mkdir Experiment
+cd Experiment
+mkdir VTP
+mkdir ParticleData
+cd ..
+
+./CCCmt ./PhysParamData.csv ./Experiment
+
+duration=$SECONDS
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
