@@ -14,7 +14,7 @@ Unfortunately due to the way that the particle simulation is run performance doe
 Some statistics are below. N are the number of particles, C is the number of threads used, t is time taken, phi is the packing fraction. The below are run using a Ryzen 3700X 8 core hyper-threaded CPU running the TESTCASE sim with N modified only.
 - N=250, phi~=0.49, normal CCC t=18s; C=1 t=26s, C=2 22s, C=4 26s, C=8 1m16s. 
 - N=500, phi~=0.98, normal CCC t=43s; C=1 t=56s, C=2 40s, C=4 39s, C=8 1m22s. 
-- N=5000, phi~=0.25, normal CCC t=1m46; C=16 t=45s. 
+- N=5000, phi~=2.45 (oops), normal CCC t=1m46; C=16 t=45s. 
 
 While these are by no means solid statistics, they do show that scaling with the number of cores is absolutely pathetic - Without using a modern enthusiast-level CPU you won't have any significant benefits. As a rough guide they imply that you should use the original version of CCC for N<500. For N>500 using CCCmt seems more effective, and that using roughly N/250 threads is efficient.
 
