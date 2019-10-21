@@ -29,10 +29,11 @@ thread::thread(std::vector<person>* pList, int Start, int Last, physParam SysPar
 
 thread::~thread(){
 	//kill pointers
+	/*
 	delete bManager;
 	delete fManager;
 	delete tManager;
-	delete randGen;
+	delete randGen; */
 }
 
 void thread::doCalculateWorkload(){
