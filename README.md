@@ -2,7 +2,9 @@
 A multithreaded version of CCC.
 
 ## TODO for Tim
-- Investigate how to change threadManager such that no thread is ever re-initialised and check performance benefits
+- Fix memory leaks in the program, and ending segfault
+- Investigate performance with high numbers of cores
+- Investigate why thread performance is so spiky
 - Edit CMakeLists to allow user to input number of cores 
 - Make further statistics on performance information. Make a batch script to gather them. 
 - Write the usage guide in readme
