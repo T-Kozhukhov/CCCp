@@ -26,27 +26,50 @@ thread::thread(std::vector<person>* pList, int Start, int Last, physParam SysPar
         sysParam.v_0, sysParam.kHarmonic, sysParam.kHertzian);
     tManager = new planarTorque(sysParam.xiAngular, sysParam.xiPair, sysParam.zetaPolar,
         sysParam.zetaVelocity);
+		
+	//prepare status
+	status = WAITING; //wait for instructions by default
+	
+	status_mutex = new std::mutex(); //dynamically created mutex
 }
 
 thread::~thread(){
 	//kill pointers
-	/*
-	delete bManager;
+	/*delete bManager;
 	delete fManager;
 	delete tManager;
-	delete randGen; */
+	delete randGen;*/
 }
 
-void thread::doCalculateWorkload(){
-	for(int i = start; i < last; i++){
-		calculateForcesTorques(i); //calculate the forces and torques on person i
+void thread::beginThread(){
+	//this is the main function for this particular thread
+	while(true){ 
+		int currStatus = getThreadStatus();
+	
+		if(currStatus==COMPUTING){
+			for(int i = start; i < last; i++){
+				calculateForcesTorques(i); //calculate the forces and torques on person i
+			}
+			switchThreadStatus(WAITING); //switch back to waiting status
+		} else if (currStatus==UPDATING){
+			for(int i = start; i < last; i++){
+				update(i); // update person i
+			}
+			switchThreadStatus(WAITING); //switch back to waiting status
+		} else if (currStatus==SHUTDOWN){
+			return; //leave the function if we're told to shutdown
+		}
 	}
 }
 
-void thread::doUpdateWorkload(){
-	for(int i = start; i < last; i++){
-		update(i); //calculate the forces and torques on person i
-	}
+int thread::getThreadStatus(){
+	std::lock_guard<std::mutex> guard(*status_mutex);
+	return status; //returns the thread's status
+}
+
+void thread::switchThreadStatus(int Status){
+	std::lock_guard<std::mutex> guard(*status_mutex);
+	status = Status;
 }
 
 void thread::calculateForcesTorques(int i){

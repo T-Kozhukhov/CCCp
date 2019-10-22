@@ -19,23 +19,31 @@ threadManager::threadManager(std::vector<person>* PersonList, physParam* SysPara
 		containerList.push_back(thread(PersonList, partitions[i], partitions[i+1], *SysParam, currTimeSeed+i));
 	}
 	
+	//finally get the threads to begin their main loops
+	for(int i = 0; i < tList.size(); i++){
+		tList[i] = std::thread(&thread::beginThread, &containerList[i]);
+	}
 	std::cout << "Running using " << coreCount << " cores!\n";
 }
 
 threadManager::~threadManager()
 {
     //dtor
+	//need to tell each thread it's time to stop
+	for(int i = 0; i < tList.size(); i++){
+		containerList[i].switchThreadStatus(thread::SHUTDOWN); //switch all threads to the shutdown status
+	}
 }
 
 void threadManager::performStep(){
     for(int i = 0; i < tList.size(); i++){
-		tList[i] = std::thread(&thread::doCalculateWorkload, containerList[i]);
+		containerList[i].switchThreadStatus(thread::COMPUTING); //switch all threads to the computing status
 	}
 	
 	waitForThreads();
 	
 	for(int i = 0; i < tList.size(); i++){
-		tList[i] = std::thread(&thread::doUpdateWorkload, containerList[i]);
+		containerList[i].switchThreadStatus(thread::UPDATING); //switch all threads to the updating status
 	}
 	
 	waitForThreads();
@@ -58,7 +66,9 @@ std::vector<int> threadManager::partitionWorkload(int n){
 }
 
 void threadManager::waitForThreads(){
+	//needs to check to make sure that all threads are in the waiting status
+	
     for(unsigned int i = 0; i < tList.size(); i++){
-        tList[i].join(); //wait for each thread to finish
+		while(containerList[i].getThreadStatus()!=thread::WAITING);
     }
 }
