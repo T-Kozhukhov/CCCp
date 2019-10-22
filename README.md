@@ -1,4 +1,4 @@
-# CCCmt
+# CCCp
 A multithreaded version of CCC.
 
 ## TODO for Tim
