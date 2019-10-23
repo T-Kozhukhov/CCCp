@@ -1,27 +1,39 @@
 # CCCp
-A multithreaded version of CCC.
+A multithreaded version of CCC. 
+Implemented by partitioning the particles between the threads, and having each thread work on their own partition of particles in parallel.
+The code uses the main thread (that which executes the main() function) to manage the other threads, and then having an arbitrary number of compute threads which perform the workloads.
 
 ## TODO for Tim
-- Fix memory leaks in the program, and ending segfault
-- Investigate performance with high numbers of cores
-- Investigate why thread performance is so spiky
+- Fix memory leaks in the program, and ending segfault - perhaps via a killPointers() function similar to the person class?
 - Edit CMakeLists to allow user to input number of cores 
-- Make further statistics on performance information. Make a batch script to gather them. 
 - Write the usage guide in readme
 - Write the main changes in readme
 
 ## Performance Guide
-Unfortunately due to the way that the particle simulation is run performance doesn't scale inverse to the number of cores used. This is due to how each thread needs to be re-initialised twice per time step. Further investigation should be done on how to avoid re-initialising threads - Perhaps having threads never properly stop, instead forcing them through a FSM, may be effective?
+Multiple runs of CCCp for relatively normal particle numbers (N<1000) imply the following:
+- Running CCCp using only one compute thread (2 total threads) is a waste of performance - While it does sometimes match the performance of CCC it may sometimes be a bit slower.
+- While performances isn't inversely proportional to the number of threads used, it does improve performance significantly. For example on my test machine:
+	- 2 compute threads is around 30% faster than CCC
+	- 4 compute threads is around 40% faster than CCC
+	- 8 compute threads is around 50% faster than CCC
+- The performance improvement over CCC seems to stop at a hard limit depending on your CPU. For me this was around 8-10 compute threads.
+- The performance improvement over CCC is a lot better at higher packing fractions.
+- If your CPU has T total threads then ensure that you use no more than T-1 compute threads or the program won't present any useful output.
+- If you will be using your computer while running a simulation with CCCp, ensure that you leave enough threads free to do other tasks. As a rough idea, aim to have no more than 90% CPU utilisation while running CCCp and your normal background tasks. I found that using 15 compute threads resulted not only in slower simulations but also a near unusable computer.
+TODO - Check if there is a newline when viewed online just before this for future reference
 
-Some statistics are below. N are the number of particles, C is the number of threads used, t is time taken, phi is the packing fraction. The below are run using a Ryzen 3700X 8 core hyper-threaded CPU running the TESTCASE sim with N modified only.
-- N=250, phi~=0.49, normal CCC t=18s; C=1 t=26s, C=2 22s, C=4 26s, C=8 1m16s. 
-- N=500, phi~=0.98, normal CCC t=43s; C=1 t=56s, C=2 40s, C=4 39s, C=8 1m22s. 
-- N=5000, phi~=2.45 (oops), normal CCC t=1m46; C=16 t=45s. 
+The exact statistics behind the above are available on request. 
+Statistics were computed by using a modified PhysParam file based off that supplied in the TESTCASE, with only 100000 total time steps, and the number of particles N modified. 
+Furthermore, the domain was modified to roughly match the packing fractions while remaining square.
+Tests were run for N=250, 500, 750, 1000 for each packing fraction 0.3, 0.5, 0.8 three times in total, and the execution time between the three runs were averaged.
+Each run was performed on normal CCC, and then CCCp for 1, 2, 4, 8, and 12 working threads.
+These tests were run on a machine using a stock Ryzen 3700X 8-core CPU with 16 threads in total. Other tasks were being done on the machine during testing.
 
-While these are by no means solid statistics, they do show that scaling with the number of cores is absolutely pathetic - Without using a modern enthusiast-level CPU you won't have any significant benefits. As a rough guide they imply that you should use the original version of CCC for N<500. For N>500 using CCCmt seems more effective, and that using roughly N/250 threads is efficient.
+Some further testing on lower thread count CPUs or higher particle counts should be done to fully understand the performance of CCCp over CCC.
 
 ## Usage Guide
 TODO
 
+As mentioned in the introduction, do note that if you setup CCCp with N compute threads, you will in fact use N+1 total threads.
 ## Main Changes in relation to CCC
 TODO
