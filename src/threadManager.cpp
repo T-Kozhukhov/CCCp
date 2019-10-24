@@ -29,9 +29,14 @@ threadManager::threadManager(std::vector<person>* PersonList, physParam* SysPara
 threadManager::~threadManager()
 {
     //dtor
-	//need to tell each thread it's time to stop
-	for(int i = 0; i < tList.size(); i++){
+	//need to tell each thread it's time to stop by killing off the thread loop
+	for(int i = 0; i < containerList.size(); i++){
 		containerList[i].switchThreadStatus(thread::SHUTDOWN); //switch all threads to the shutdown status
+	}
+	
+	//now kill pointers in each thread container
+	for(int i = 0; i < containerList.size(); i++){
+		containerList[i].killPointers(); //kill pointers for this aprticular container
 	}
 }
 
@@ -69,6 +74,6 @@ void threadManager::waitForThreads(){
 	//needs to check to make sure that all threads are in the waiting status
 	
     for(unsigned int i = 0; i < tList.size(); i++){
-		while(containerList[i].getThreadStatus()!=thread::WAITING);
+		while(!containerList[i].getWaitStatus());
     }
 }

@@ -28,17 +28,25 @@ thread::thread(std::vector<person>* pList, int Start, int Last, physParam SysPar
         sysParam.zetaVelocity);
 		
 	//prepare status
-	status = WAITING; //wait for instructions by default
-	
-	status_mutex = new std::mutex(); //dynamically created mutex
+	status_mutex = new std::mutex(); //dynamically create mutexs for FSM vars
+	waiting_mutex = new std::mutex();
+	switchThreadStatus(WAITING); //wait for instructions by default
 }
 
 thread::~thread(){
+	
+}
+
+void thread::killPointers(){
 	//kill pointers
-	/*delete bManager;
+	delete bManager;
 	delete fManager;
 	delete tManager;
-	delete randGen;*/
+	delete randGen;
+	
+	//kill mutexs
+	delete status_mutex;
+	delete waiting_mutex;
 }
 
 void thread::beginThread(){
@@ -57,19 +65,32 @@ void thread::beginThread(){
 			}
 			switchThreadStatus(WAITING); //switch back to waiting status
 		} else if (currStatus==SHUTDOWN){
-			return; //leave the function if we're told to shutdown
+			return; //leave the function if we're told to shutdown, killing the container std::thread object
 		}
+	}
+}
+
+bool thread::getWaitStatus(){
+	std::lock_guard<std::mutex> guard(*waiting_mutex);
+	return waiting;
+}
+
+void thread::switchThreadStatus(int Status){
+	std::lock_guard<std::mutex> guard(*status_mutex);
+	status = Status;
+	
+	if(Status == WAITING){ //if we're being told to wait, switch the bool appropriately
+		std::lock_guard<std::mutex> guard(*waiting_mutex);
+		waiting = true;
+	} else {
+		std::lock_guard<std::mutex> guard(*waiting_mutex);
+		waiting = false;
 	}
 }
 
 int thread::getThreadStatus(){
 	std::lock_guard<std::mutex> guard(*status_mutex);
 	return status; //returns the thread's status
-}
-
-void thread::switchThreadStatus(int Status){
-	std::lock_guard<std::mutex> guard(*status_mutex);
-	status = Status;
 }
 
 void thread::calculateForcesTorques(int i){
