@@ -6,7 +6,7 @@ The code uses the main thread (that which executes the main() function) to manag
 Currently, the main thread still performs neighbourList calculations and IO related operations while the compute threads will calculate forces, torques and update particle data.
 
 ## TODO for Tim
-- Fix memory leaks in the program, and the ending segfault - perhaps via a killPointers() function similar to the person class?
+- Clean up code ready for deployment
 - Edit CMakeLists to allow user to input number of cores either while 
 - Write the usage guide in readme
 - Write the main changes in readme
