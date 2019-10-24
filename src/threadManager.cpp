@@ -32,6 +32,7 @@ threadManager::~threadManager()
 	//need to tell each thread it's time to stop by killing off the thread loop
 	for(int i = 0; i < containerList.size(); i++){
 		containerList[i].switchThreadStatus(thread::SHUTDOWN); //switch all threads to the shutdown status
+		tList[i].join(); //now formally join the thread to kill it off
 	}
 	
 	//now kill pointers in each thread container

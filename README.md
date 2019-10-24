@@ -4,7 +4,7 @@ Implemented by partitioning the particles between the threads, and having each t
 The code uses the main thread (that which executes the main() function) to manage the other threads, and then having an arbitrary number of compute threads which perform the workloads.
 
 ## TODO for Tim
-- Fix memory leaks in the program, and ending segfault - perhaps via a killPointers() function similar to the person class?
+- Fix errors and clean up code ready for deployment
 - Edit CMakeLists to allow user to input number of cores 
 - Write the usage guide in readme
 - Write the main changes in readme
