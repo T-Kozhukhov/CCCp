@@ -27,14 +27,14 @@ thread::thread(std::vector<person>* pList, int Start, int Last, physParam SysPar
     tManager = new planarTorque(sysParam.xiAngular, sysParam.xiPair, sysParam.zetaPolar,
         sysParam.zetaVelocity);
 		
-	//prepare status
+	//prepare status variables
 	status_mutex = new std::mutex(); //dynamically create mutexs for FSM vars
 	waiting_mutex = new std::mutex();
 	switchThreadStatus(WAITING); //wait for instructions by default
 }
 
 thread::~thread(){
-	
+	//dtor - empty to avoid segfaults - pointers are killed upon instruction by parent threadManager class
 }
 
 void thread::killPointers(){
@@ -50,11 +50,11 @@ void thread::killPointers(){
 }
 
 void thread::beginThread(){
-	//this is the main function for this particular thread
+	//this is the "main" function for this particular thread
 	while(true){ 
-		int currStatus = getThreadStatus();
+		int currStatus = getThreadStatus(); //get status only through function to ensure mutex is used appropriately
 	
-		if(currStatus==COMPUTING){
+		if(currStatus==COMPUTING){ //pivot based off earlier init'd var to avoid overuse of mutex'd get function
 			for(int i = start; i < last; i++){
 				calculateForcesTorques(i); //calculate the forces and torques on person i
 			}
@@ -65,21 +65,21 @@ void thread::beginThread(){
 			}
 			switchThreadStatus(WAITING); //switch back to waiting status
 		} else if (currStatus==SHUTDOWN){
-			return; //leave the function if we're told to shutdown, killing the container std::thread object
+			return; //leave the function if we're told to shutdown, allowing parent std::thread object to be joinable
 		}
 	}
 }
 
-bool thread::getWaitStatus(){
-	std::lock_guard<std::mutex> guard(*waiting_mutex);
+bool thread::getWaitStatus(){ //mutex'd wait get
+	std::lock_guard<std::mutex> guard(*waiting_mutex); 
 	return waiting;
 }
 
 void thread::switchThreadStatus(int Status){
-	std::lock_guard<std::mutex> guard(*status_mutex);
+	std::lock_guard<std::mutex> guard(*status_mutex); //set mutex now so other threads can't use status
 	status = Status;
 	
-	if(Status == WAITING){ //if we're being told to wait, switch the bool appropriately
+	if(Status == WAITING){ //if we're being told to wait, switch the wait bool appropriately using the appropriate mutex
 		std::lock_guard<std::mutex> guard(*waiting_mutex);
 		waiting = true;
 	} else {
@@ -93,11 +93,11 @@ int thread::getThreadStatus(){
 	return status; //returns the thread's status
 }
 
-void thread::calculateForcesTorques(int i){
+void thread::calculateForcesTorques(int i){ //nearly identical forces/ torques function as would normally be in the System class
 	//get p_i for readability here
     person *p_i = personList.at(i);
 
-    if(!p_i->getGlued()){
+    if(!p_i->getGlued()){ //only perform action if pointed particle is't glued
         //obtain the neighbourlist for this particle
         std::vector<int> nList = p_i->getCurrNList();
 
@@ -134,7 +134,7 @@ void thread::calculateForcesTorques(int i){
     }
 }
 
-void thread::update(int i){
+void thread::update(int i){ //function to update non-glued particles
 	if(!personList.at(i)->getGlued()) {
         personList.at(i)->update(sysParam.stepSize, bManager); //if not glued, update each particle
     }

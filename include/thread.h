@@ -11,10 +11,6 @@
 #include "planarTorque.h"
 #include "RNG.h"
 
-/* 
-	Thread class to contain all resources in use by a single thread via the threadManager class
-*/
-
 class thread
 {
     public:

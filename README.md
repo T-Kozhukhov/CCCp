@@ -3,13 +3,19 @@ A multithreaded version of CCC.
 Implemented by partitioning the particles between the threads, and having each thread work on their own partition of particles in parallel.
 
 The code uses the main thread (that which executes the main() function) to manage a user adjustable number of compute threads which perform the actual workloads. 
-Currently, the main thread still performs neighbourList calculations and IO related operations while the compute threads will calculate forces, torques and update particle data.
+Currently, the main thread still performs neighbourList calculations and IO related operations while the compute threads will calculate forces, torques and update particle data in that order for each step.
 
-## TODO for Tim
-- Clean up code ready for deployment
-- Edit CMakeLists to allow user to input number of cores either while 
-- Write the usage guide in readme
-- Write the main changes in readme
+## Installation Guide
+The program has the same dependencies as standard CCC, with makefile generation done via CMake. 
+You set the number of threads used by CCCp when using CMake - You must call CMake using a command similar to the following:
+```
+cmake -DCOMPUTE_THREAD_COUNT=x ..
+```
+Where x should represent how many compute threads you wish to use. CMake will throw a nonsensical error otherwise. 
+Note that x represents the number of compute threads, with the total number of threads being x+1. 
+Please see the performance guide section for more information on how many threads to use.
+
+Beyond that installation is identical to CCC.
 
 ## Performance Guide
 Multiple runs of CCCp for relatively normal particle numbers (N<1000) imply the following:
@@ -32,10 +38,9 @@ These tests were run on a machine using a stock Ryzen 3700X 8-core CPU with 16 t
 
 Some further testing on lower thread count CPUs or higher particle counts should be done to fully understand the performance of CCCp over CCC.
 
-## Usage Guide
-TODO
-
-As mentioned in the introduction, do note that if you setup CCCp with N compute threads, you will in fact use N+1 total threads taking into account the main thread.
-
 ## Main Changes in relation to CCC
-TODO
+The main additions to CCCp are the threadManager and thread classes. These act as a controller for each thread of the program, and a container for each thread respectively.
+In CCCp, each thread container class will have it's own force, torque, and boundary managers, along with a random number generator (each will have a different seed) and a copy of the PhysParams.
+Furthermore, computation of forces and torques and updating person values is done by each thread (see the relevent functions in the thread class).
+The actual implementation of multithreading has each thread have it's own "main" loop which will perform different actions based on a finite state machine. 
+ 

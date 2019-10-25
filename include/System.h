@@ -34,7 +34,6 @@ class System
 
         //dynamics functions
         void step(int t); // performs a single time step
-        void calculateForcesTorques(int i); //calculates all the forces for the person at index i in the list
         void generateDebugParticles(); //generate hardcoded particles in order to debug
 
         //auxiliary functions

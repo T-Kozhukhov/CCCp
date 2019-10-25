@@ -17,7 +17,7 @@ class threadManager
 
     private:
         //tManager specific members ///////////////////////
-        const unsigned int coreCount = 8;//CORE_COUNT; //gets number of threads to use via preprocessor variable
+        const unsigned int coreCount = _COMPUTE_THREAD_COUNT; //gets number of threads to use via preprocessor variable
         std::vector<std::thread> tList; //the main list of threads.
 		std::vector<thread> containerList; //the list of containers for each thread
 

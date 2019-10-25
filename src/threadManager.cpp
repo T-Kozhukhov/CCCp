@@ -23,6 +23,7 @@ threadManager::threadManager(std::vector<person>* PersonList, physParam* SysPara
 	for(int i = 0; i < tList.size(); i++){
 		tList[i] = std::thread(&thread::beginThread, &containerList[i]);
 	}
+	
 	std::cout << "Running using " << coreCount << " cores!\n";
 }
 
@@ -37,7 +38,7 @@ threadManager::~threadManager()
 	
 	//now kill pointers in each thread container
 	for(int i = 0; i < containerList.size(); i++){
-		containerList[i].killPointers(); //kill pointers for this aprticular container
+		containerList[i].killPointers(); //kill pointers for this particular container
 	}
 }
 
@@ -58,7 +59,6 @@ void threadManager::performStep(){
 std::vector<int> threadManager::partitionWorkload(int n){
 	std::vector<int> toReturn;
 	
-    //needs to be equal number of partitions as threads, ie partitions.size()==coreCount+1 at the end
     int partSize = std::floor((int)n/(double)coreCount); //get rough size of each partition, last partition will be largest
 
     //now perform actual partitioning
@@ -73,8 +73,7 @@ std::vector<int> threadManager::partitionWorkload(int n){
 
 void threadManager::waitForThreads(){
 	//needs to check to make sure that all threads are in the waiting status
-	
     for(unsigned int i = 0; i < tList.size(); i++){
-		while(!containerList[i].getWaitStatus());
+		while(!containerList[i].getWaitStatus()); //be stuck in while loop until each thread is waiting
     }
 }
