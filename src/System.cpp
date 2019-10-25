@@ -108,21 +108,7 @@ void System::step(int t){
         neighbourList::updateLists(&personList, &bManager); //update the neighbour lists if necessary
     }
 
-    //loop through all non-glued particles...
-//    for(unsigned int i = 0; i < personList.size(); i++){
-//        if(!personList[i].getGlued()){
-//            calculateForcesTorques(i); //calculate the forces acting on each non-glued particle
-//        }
-//    }
-//
-//    // perform dynamics for all non-glued particles particles
-//    for(unsigned int i = 0; i<personList.size(); i++){
-//        if(!personList[i].getGlued()) {
-//            personList[i].update(sysParam.stepSize, &bManager); //if not glued, update each particle
-//        }
-//    }
-
-    thManager->performStep();
+    thManager->performStep(); //tell the thread manager to perform another step
 }
 
 void System::mergePList(std::vector<person> newList){
@@ -149,44 +135,9 @@ void System::mergePList(std::vector<person> *parentList, std::vector<person> new
     neighbourList::updateLists(&personList, &bManager); //update the neighbour lists to make the program ready for use
 }
 
-/* void System::calculateForcesTorques(int i){ //calculate the force and torques acting on particle i here
-    //get p_i for readability here
-    person *p_i = &personList[i];
-
-    //obtain the neighbourlist for this particle
-    std::vector<int> nList = p_i->getCurrNList();
-
-    p_i->setForce(mathVector()); //reset force on particle to a 0 vector
-    p_i->setTorque(0); //reset torque on particle to 0
-    p_i->setNoisyForce(mathVector()); //reset noise force
-    p_i->setNoisyTorque(0); //reset noise torque
-
-    for(unsigned int j = 0; j<nList.size(); j++){ //for each of the neighbours...
-        if(nList[j]!=i){ //only run the following if the particle isn't using itself as a neighbour
-            //for readability, get p_j
-            person *p_j = &personList[nList[j]]; // p_j is actually the person at the j'th entry in the nList, not the j'th entry in the main pList!!
-
-            //paired forces, only calculate and add if sysParam specified to do so
-            if(sysParam.enableHarmonicInterForce) { p_i->addForce(fManager.computeHarmonicInterForce(p_i, p_j)); }
-            if(sysParam.enableHertzianInterForce) { p_i->addForce(fManager.computeHertzianInterForce(p_i, p_j)); }
-            if(sysParam.enablePersonFrictionForce) { p_i->addForce(fManager.computePersonFrictionForce(p_i, p_j)); }
-
-            //paired torques, only calculate and add if sysParam specified to do so
-            if(sysParam.enablePolarAlignmentTorque) { p_i->addTorque(tManager.computePolarAlignmentTorque(p_i, p_j)); }
-            if(sysParam.enablePairDissipationTorque) { p_i->addTorque(tManager.computePairDissipationTorque(p_i, p_j)); }
-        }
-    }
-
-    //single forces, only calculate and add if sysParam specified to do so
-    if(sysParam.enableActiveForce) { p_i->addForce(fManager.computeActiveForce(p_i)); }
-    if(sysParam.enableGroundFrictionForce) { p_i->addForce(fManager.computeGroundFrictionForce(p_i)); }
-    if(sysParam.enableRandNoisyForce) { p_i->setNoisyForce(fManager.randNoisyForce(&randGen, sysParam.sigmaForceX, sysParam.sigmaForceY)); }
-
-    //single torques, only calculate and add if sysParam specified to do so
-    if(sysParam.enableVelocityAlignmentTorque) { p_i->addTorque(tManager.computeVelocityAlignmentTorque(p_i)); }
-    if(sysParam.enableAngularFrictionTorque) { p_i->addTorque(tManager.computeAngularFrictionTorque(p_i)); }
-    if(sysParam.enableRandNoisyTorque) { p_i->setNoisyTorque(tManager.randNoisyTorque(&randGen, sysParam.sigmaTorque)); }
-} */
+/* 
+	Note, in normal CCC here would be a function to calculate forces and torques. This is moved within the thread class.
+*/
 
 void System::generateDebugParticles(){
     //This subroutine is used to hardcode particles to debug the code

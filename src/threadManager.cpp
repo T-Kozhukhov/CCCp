@@ -19,23 +19,38 @@ threadManager::threadManager(std::vector<person>* PersonList, physParam* SysPara
 		containerList.push_back(thread(PersonList, partitions[i], partitions[i+1], *SysParam, currTimeSeed+i));
 	}
 	
+	//finally get the threads to begin their main loops
+	for(int i = 0; i < tList.size(); i++){
+		tList[i] = std::thread(&thread::beginThread, &containerList[i]);
+	}
+	
 	std::cout << "Running using " << coreCount << " cores!\n";
 }
 
 threadManager::~threadManager()
 {
     //dtor
+	//need to tell each thread it's time to stop by killing off the thread loop
+	for(int i = 0; i < containerList.size(); i++){
+		containerList[i].switchThreadStatus(thread::SHUTDOWN); //switch all threads to the shutdown status
+		tList[i].join(); //now formally join the thread to kill it off
+	}
+	
+	//now kill pointers in each thread container
+	for(int i = 0; i < containerList.size(); i++){
+		containerList[i].killPointers(); //kill pointers for this particular container
+	}
 }
 
 void threadManager::performStep(){
     for(int i = 0; i < tList.size(); i++){
-		tList[i] = std::thread(&thread::doCalculateWorkload, containerList[i]);
+		containerList[i].switchThreadStatus(thread::COMPUTING); //switch all threads to the computing status
 	}
 	
 	waitForThreads();
 	
 	for(int i = 0; i < tList.size(); i++){
-		tList[i] = std::thread(&thread::doUpdateWorkload, containerList[i]);
+		containerList[i].switchThreadStatus(thread::UPDATING); //switch all threads to the updating status
 	}
 	
 	waitForThreads();
@@ -44,7 +59,6 @@ void threadManager::performStep(){
 std::vector<int> threadManager::partitionWorkload(int n){
 	std::vector<int> toReturn;
 	
-    //needs to be equal number of partitions as threads, ie partitions.size()==coreCount+1 at the end
     int partSize = std::floor((int)n/(double)coreCount); //get rough size of each partition, last partition will be largest
 
     //now perform actual partitioning
@@ -58,7 +72,8 @@ std::vector<int> threadManager::partitionWorkload(int n){
 }
 
 void threadManager::waitForThreads(){
+	//needs to check to make sure that all threads are in the waiting status
     for(unsigned int i = 0; i < tList.size(); i++){
-        tList[i].join(); //wait for each thread to finish
+		while(!containerList[i].getWaitStatus()); //be stuck in while loop until each thread is waiting
     }
 }
